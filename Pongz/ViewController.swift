@@ -207,13 +207,13 @@ fileprivate extension ViewController {
     
     func setUpLeftButton() {
         let origin = CGPoint(x: 0 , y: yMax / 2 + ballView.bounds.height )
-        let size = CGSize(width: 50, height: 50)
+        let size = CGSize(width: 50, height: 200)
         leftButton.frame = CGRect(origin: origin, size: size)
     }
     
     func setUpRightButton() {
         let origin = CGPoint(x: xMax - rightButton.bounds.width , y: yMax/2 + ballView.bounds.height )
-        let size = CGSize(width: 60, height: 60)
+        let size = CGSize(width: 60, height: 200)
         rightButton.frame = CGRect(origin: origin, size: size)
     }
 }
@@ -222,8 +222,8 @@ fileprivate extension ViewController {
 extension ViewController {
     
     func centerBall() {
-        ballView.bounds.origin.x = xMax / 2 - ballView.ofsetedWidth()
-        ballView.bounds.origin.y = yMax / 2 - ballView.ofsetedHeight()
+        ballView.frame.origin.x = xMax / 2 - ballView.ofsetedWidth()
+        ballView.frame.origin.y = yMax / 2 - ballView.ofsetedHeight()
     }
     
     

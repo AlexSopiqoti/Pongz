@@ -64,34 +64,6 @@ class ViewController: UIViewController {
     override var prefersStatusBarHidden: Bool {
         return true
     }
-    
-    func updateGame() {
-        ballCollision()
-        ballCollisionWithPlayer()
-    }
-    
-    func updateBallPosition(speedX: CGFloat , speedY: CGFloat){
-        ballView.frame.origin.x -= speedX
-        ballView.frame.origin.y -= speedY
-    }
-    
-    func ballCollisionWithPlayer() {
-        
-        if ballView.frame.origin.y + ballView.bounds.height == playerView.frame.origin.y && ( ballView.frame.origin.x >= playerView.frame.origin.x && ballView.frame.origin.x <= playerView.frame.origin.x + playerView.bounds.width ) {
-            ballSpeedX = -ballSpeedX
-            ballSpeedY = -ballSpeedY
-            updateBallPosition(speedX: ballSpeedX, speedY: ballSpeedY)
-        }
-    }
-    
-    func gameIsEnded() -> Bool {
-        return ballView.frame.origin.y + ballView.bounds.height >= yMax
-    }
-    
-    func resetBallSpeed() {
-        ballSpeedX = 1
-        ballSpeedY = 1
-    }
 }
 
 
@@ -156,6 +128,34 @@ fileprivate extension ViewController {
         } else {
             updateBallPosition(speedX: ballSpeedX, speedY: ballSpeedY)
         }
+    }
+    
+    func ballCollisionWithPlayer() {
+        
+        if ballView.frame.origin.y + ballView.bounds.height == playerView.frame.origin.y && ( ballView.frame.origin.x >= playerView.frame.origin.x && ballView.frame.origin.x <= playerView.frame.origin.x + playerView.bounds.width ) {
+            ballSpeedX = -ballSpeedX
+            ballSpeedY = -ballSpeedY
+            updateBallPosition(speedX: ballSpeedX, speedY: ballSpeedY)
+        }
+    }
+    
+    func updateBallPosition(speedX: CGFloat , speedY: CGFloat) {
+        ballView.frame.origin.x -= speedX
+        ballView.frame.origin.y -= speedY
+    }
+    
+    func resetBallSpeed() {
+        ballSpeedX = 1
+        ballSpeedY = 1
+    }
+}
+
+// MARK: - Player
+
+fileprivate extension ViewController {
+    
+    func setPlayerViewPosition(withPositionX positionX: CGFloat, withPositionY positionY: CGFloat?) {
+        playerView.frame.origin.x = positionX - playerView.ofsetedWidth()
     }
 }
 
@@ -225,8 +225,49 @@ extension ViewController {
         ballView.frame.origin.x = xMax / 2 - ballView.ofsetedWidth()
         ballView.frame.origin.y = yMax / 2 - ballView.ofsetedHeight()
     }
+}
+
+// MARK TouchDelegate
+
+extension ViewController {
     
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        guard let touchCoordinateX = touches.first?.location(in: self.view).x else {
+            return
+        }
+        
+        setPlayerViewPosition(withPositionX: touchCoordinateX, withPositionY: nil)
+    }
     
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        guard let touchCoordinateX = touches.first?.location(in: self.view).x else {
+            return
+        }
+        
+        setPlayerViewPosition(withPositionX: touchCoordinateX, withPositionY: nil)
+    }
+    
+    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+        guard let touchCoordinateX = touches.first?.location(in: self.view).x else {
+            return
+        }
+        
+        setPlayerViewPosition(withPositionX: touchCoordinateX, withPositionY: nil)
+    }
+}
+
+// MARK: - Game States
+
+fileprivate extension ViewController{
+    
+    func updateGame() {
+        ballCollision()
+        ballCollisionWithPlayer()
+    }
+    
+    func gameIsEnded() -> Bool {
+        return ballView.frame.origin.y + ballView.bounds.height >= yMax
+    }
 }
 
 // MARK: - UIView Extension

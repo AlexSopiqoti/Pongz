@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import AudioToolbox
 
 class ViewController: UIViewController {
     
@@ -18,7 +19,14 @@ class ViewController: UIViewController {
     //MARK: - Settings
    
     private let playerSpeed: CGFloat = 20
-
+    private let gameUpdateSpeed: TimeInterval = 1 / 180
+    private var ballSpeedX: CGFloat = 2
+    private var ballSpeedY: CGFloat = 2
+    
+    // MARK: Properties
+    
+    private var timer: Timer!
+    
     // MARK: - Outlets
 
     @IBOutlet weak var skynetView: UIView!
@@ -56,6 +64,79 @@ class ViewController: UIViewController {
     override var prefersStatusBarHidden: Bool {
         return true
     }
+    
+    func updateGame() {
+        ballCollision()
+    }
+    
+    func updateBallPosition(speedX: CGFloat , speedY: CGFloat){
+        ballView.frame.origin.x -= speedX
+        ballView.frame.origin.y -= speedY
+    }
+}
+
+
+//MARK: - Ball Collision Detection
+
+fileprivate extension ViewController {
+    
+    func ballCollision(){
+        //Left Bound
+        if ballView.frame.origin.x <= 0 {
+            ballSpeedX = -ballSpeedX
+            updateBallPosition(speedX: ballSpeedX, speedY: ballSpeedY )
+            AudioServicesPlaySystemSound(1519)
+            
+            //Upper Bound
+        } else if ballView.frame.origin.y <= 0 {
+            ballSpeedY = -ballSpeedY
+            updateBallPosition(speedX: ballSpeedX, speedY: ballSpeedY )
+            AudioServicesPlaySystemSound(1519)
+            
+            //Right Bound
+        } else if ballView.frame.origin.x + ballView.bounds.width >= xMax {
+            ballSpeedX = -ballSpeedX
+            updateBallPosition(speedX: ballSpeedX, speedY: ballSpeedY)
+            AudioServicesPlaySystemSound(1519)
+            
+            //Lower Bound
+        } else if ballView.frame.origin.y + ballView.bounds.height >= yMax {
+            ballSpeedY = -ballSpeedY
+            updateBallPosition(speedX: ballSpeedX, speedY: ballSpeedY)
+            AudioServicesPlaySystemSound(1519)
+            
+            //Left-Up Corner
+        } else if ballView.frame.origin.x <= 0 && ballView.frame.origin.y <= 0 {
+            ballSpeedX = -ballSpeedX
+            ballSpeedY = -ballSpeedY
+            updateBallPosition(speedX: ballSpeedX, speedY: ballSpeedY)
+            AudioServicesPlaySystemSound(1519)
+            
+            //Right-Up Corner
+        } else if ballView.frame.origin.y <= 0 && ballView.frame.origin.x + ballView.bounds.width >= xMax {
+            ballSpeedX = -ballSpeedX
+            ballSpeedY = -ballSpeedY
+            updateBallPosition(speedX: ballSpeedX, speedY: ballSpeedY)
+            AudioServicesPlaySystemSound(1519)
+            
+            //Right-Down Corner
+        } else if ballView.frame.origin.x + ballView.bounds.width >= xMax && ballView.frame.origin.y + ballView.bounds.height >= yMax {
+            ballSpeedX = -ballSpeedX
+            ballSpeedY = -ballSpeedY
+            updateBallPosition(speedX: ballSpeedX, speedY: ballSpeedY)
+            AudioServicesPlaySystemSound(1519)
+            
+            //Left-Down Corner
+        } else if ballView.frame.origin.x <= 0 && ballView.frame.origin.y + ballView.bounds.height >= yMax {
+            ballSpeedX = -ballSpeedX
+            ballSpeedY = -ballSpeedY
+            updateBallPosition(speedX: ballSpeedX, speedY: ballSpeedY)
+            AudioServicesPlaySystemSound(1519)
+            
+        } else {
+            updateBallPosition(speedX: ballSpeedX, speedY: ballSpeedY)
+        }
+    }
 }
 
 // MARK: - Controller Setup
@@ -75,6 +156,15 @@ fileprivate extension ViewController {
         setUpSkynet()
         setUpLeftButton()
         setUpRightButton()
+        
+        setupGameLifeCycle()
+    }
+    
+    func setupGameLifeCycle() {
+        timer = Timer.scheduledTimer(withTimeInterval: gameUpdateSpeed, repeats: true, block: { timer in
+            self.updateGame()
+        })
+        timer.fire()
     }
     
     func setUpPlayerView() {
@@ -85,7 +175,7 @@ fileprivate extension ViewController {
     
     func setUpballView() {
         let origin = CGPoint(x: xMax / 2 - ballView.bounds.width / 2, y: yMax / 2 - ballView.bounds.height / 2)
-        let size = CGSize(width: 60, height: 60)
+        let size = CGSize(width: 30, height: 30)
         ballView.frame = CGRect(origin: origin, size: size)
     }
     

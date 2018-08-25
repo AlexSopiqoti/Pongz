@@ -19,9 +19,9 @@ class ViewController: UIViewController {
     //MARK: - Settings
    
     private let playerSpeed: CGFloat = 20
-    private let gameUpdateSpeed: TimeInterval = 1 / 180
-    private var ballSpeedX: CGFloat = 2
-    private var ballSpeedY: CGFloat = 2
+    private let gameUpdateSpeed: TimeInterval = 1 / 120
+    private var ballSpeedX: CGFloat = 1
+    private var ballSpeedY: CGFloat = 1
     
     // MARK: Properties
     
@@ -67,11 +67,30 @@ class ViewController: UIViewController {
     
     func updateGame() {
         ballCollision()
+        ballCollisionWithPlayer()
     }
     
     func updateBallPosition(speedX: CGFloat , speedY: CGFloat){
         ballView.frame.origin.x -= speedX
         ballView.frame.origin.y -= speedY
+    }
+    
+    func ballCollisionWithPlayer() {
+        
+        if ballView.frame.origin.y + ballView.bounds.height == playerView.frame.origin.y && ( ballView.frame.origin.x >= playerView.frame.origin.x && ballView.frame.origin.x <= playerView.frame.origin.x + playerView.bounds.width ) {
+            ballSpeedX = -ballSpeedX
+            ballSpeedY = -ballSpeedY
+            updateBallPosition(speedX: ballSpeedX, speedY: ballSpeedY)
+        }
+    }
+    
+    func gameIsEnded() -> Bool {
+        return ballView.frame.origin.y + ballView.bounds.height >= yMax
+    }
+    
+    func resetBallSpeed() {
+        ballSpeedX = 1
+        ballSpeedY = 1
     }
 }
 
@@ -99,11 +118,12 @@ fileprivate extension ViewController {
             updateBallPosition(speedX: ballSpeedX, speedY: ballSpeedY)
             AudioServicesPlaySystemSound(1519)
             
-            //Lower Bound
-        } else if ballView.frame.origin.y + ballView.bounds.height >= yMax {
-            ballSpeedY = -ballSpeedY
+            //Lower Bound - Reset Ball Position
+        } else if gameIsEnded() {
+            centerBall()
+            resetBallSpeed()
             updateBallPosition(speedX: ballSpeedX, speedY: ballSpeedY)
-            AudioServicesPlaySystemSound(1519)
+            AudioServicesPlaySystemSound(1520)
             
             //Left-Up Corner
         } else if ballView.frame.origin.x <= 0 && ballView.frame.origin.y <= 0 {
@@ -168,19 +188,19 @@ fileprivate extension ViewController {
     }
     
     func setUpPlayerView() {
-        let origin = CGPoint(x: xMax / 2 - playerView.bounds.width / 2, y: yMax - playerView.bounds.height)
-        let size = CGSize(width: 100, height: 30)
+        let origin = CGPoint(x: xMax / 2 - playerView.ofsetedWidth(), y: yMax - playerView.bounds.height)
+        let size = CGSize(width: 150, height: 30)
         playerView.frame = CGRect(origin: origin , size: size)
     }
     
     func setUpballView() {
-        let origin = CGPoint(x: xMax / 2 - ballView.bounds.width / 2, y: yMax / 2 - ballView.bounds.height / 2)
+        let origin = CGPoint(x: xMax / 2 - ballView.ofsetedWidth(), y: yMax / 2 - ballView.bounds.height / 2)
         let size = CGSize(width: 30, height: 30)
         ballView.frame = CGRect(origin: origin, size: size)
     }
     
     func setUpSkynet() {
-        let origin = CGPoint(x: xMax / 2 - skynetView.bounds.width / 2 , y: 0)
+        let origin = CGPoint(x: xMax / 2 - skynetView.ofsetedWidth() , y: 0)
         let size = CGSize(width: 100, height: 30)
         skynetView.frame = CGRect(origin: origin, size: size)
     }
@@ -195,5 +215,29 @@ fileprivate extension ViewController {
         let origin = CGPoint(x: xMax - rightButton.bounds.width , y: yMax/2 + ballView.bounds.height )
         let size = CGSize(width: 60, height: 60)
         rightButton.frame = CGRect(origin: origin, size: size)
+    }
+}
+
+
+extension ViewController {
+    
+    func centerBall() {
+        ballView.bounds.origin.x = xMax / 2 - ballView.ofsetedWidth()
+        ballView.bounds.origin.y = yMax / 2 - ballView.ofsetedHeight()
+    }
+    
+    
+}
+
+// MARK: - UIView Extension
+
+extension UIView {
+    
+    func ofsetedHeight() -> CGFloat {
+        return self.bounds.height / 2
+    }
+    
+    func ofsetedWidth() -> CGFloat {
+        return self.bounds.width / 2
     }
 }

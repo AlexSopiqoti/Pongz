@@ -20,6 +20,7 @@ class ViewController: UIViewController {
    
     private let playerSpeed: CGFloat = 20
     private let gameUpdateSpeed: TimeInterval = 1 / 120
+    private let ballSpeedSquared: CGFloat = 2
     private var ballSpeedX: CGFloat = 1
     private var ballSpeedY: CGFloat = 1
     
@@ -131,8 +132,16 @@ fileprivate extension ViewController {
     }
     
     func ballCollisionWithPlayer() {
-        
         if ballView.frame.origin.y + ballView.bounds.height == playerView.frame.origin.y && ( ballView.frame.origin.x >= playerView.frame.origin.x && ballView.frame.origin.x <= playerView.frame.origin.x + playerView.bounds.width ) {
+            ballSpeedX = (ballView.frame.origin.x - playerView.frame.origin.x) / 100
+            ballSpeedY = sqrt(ballSpeedSquared - pow(ballSpeedX, 2))
+           
+            updateBallPosition(speedX: ballSpeedX, speedY: ballSpeedY)
+        }
+    }
+    
+    func ballCollisionWithSkyNet(){
+        if ballView.frame.origin.y == skynetView.frame.origin.y + skynetView.bounds.height && ( ballView.frame.origin.x >= skynetView.frame.origin.x && ballView.frame.origin.x <= skynetView.frame.origin.x + playerView.bounds.width ) {
             ballSpeedX = -ballSpeedX
             ballSpeedY = -ballSpeedY
             updateBallPosition(speedX: ballSpeedX, speedY: ballSpeedY)
@@ -263,6 +272,7 @@ fileprivate extension ViewController{
     func updateGame() {
         ballCollision()
         ballCollisionWithPlayer()
+       // ballCollisionWithSkyNet()
     }
     
     func gameIsEnded() -> Bool {

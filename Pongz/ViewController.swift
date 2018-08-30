@@ -132,7 +132,7 @@ fileprivate extension ViewController {
     }
     
     func ballCollisionWithPlayer() {
-        if ballView.frame.origin.y + ballView.bounds.height == playerView.frame.origin.y && ( ballView.frame.origin.x >= playerView.frame.origin.x && ballView.frame.origin.x <= playerView.frame.origin.x + playerView.bounds.width ) {
+        if playerView.frame.intersects(ballView.frame){
             ballSpeedX = (ballView.frame.origin.x - playerView.frame.origin.x) / 100
             ballSpeedY = sqrt(ballSpeedSquared - pow(ballSpeedX, 2))
            
@@ -141,9 +141,9 @@ fileprivate extension ViewController {
     }
     
     func ballCollisionWithSkyNet(){
-        if ballView.frame.origin.y == skynetView.frame.origin.y + skynetView.bounds.height && ( ballView.frame.origin.x >= skynetView.frame.origin.x && ballView.frame.origin.x <= skynetView.frame.origin.x + playerView.bounds.width ) {
-            ballSpeedX = -ballSpeedX
-            ballSpeedY = -ballSpeedY
+        if skynetView.frame.intersects(ballView.frame){
+            ballSpeedX = (ballView.frame.origin.x - playerView.frame.origin.x) / 100
+            ballSpeedY = sqrt(ballSpeedSquared - pow(ballSpeedX, 2))
             updateBallPosition(speedX: ballSpeedX, speedY: ballSpeedY)
         }
     }
@@ -272,7 +272,7 @@ fileprivate extension ViewController{
     func updateGame() {
         ballCollision()
         ballCollisionWithPlayer()
-       // ballCollisionWithSkyNet()
+        ballCollisionWithSkyNet()
     }
     
     func gameIsEnded() -> Bool {
